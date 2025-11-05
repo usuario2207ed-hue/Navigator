@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Navegadores</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#2dd4bf;
+      --text:#e6eef6;
+      --muted:#99a3b3;
+      --glass: rgba(255,255,255,0.03);
+      --shadow: 0 8px 24px rgba(2,6,23,0.6);
+      --radius:12px;
+      font-family: Inter, system-ui, -apple-system, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071021 0%, #0b1530 100%);color:var(--text);}
+    .wrap{max-width:1100px;margin:48px auto;padding:20px;}
+
+    .title {
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      user-select:none;
+    }
+    .title h1{
+      margin:0;font-size:clamp(20px,4vw,36px);letter-spacing:0.6px;
+      background: linear-gradient(90deg, #fff, var(--accent), #ffd166);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: hue 6s infinite linear;
+    }
+    .badge {
+      background:linear-gradient(90deg,#1f2937,#0ea5a4);
+      padding:6px 10px;border-radius:999px;font-weight:600;font-size:0.9rem;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+      transform-origin:center;
+      animation: bob 3s ease-in-out infinite;
+    }
+    @keyframes hue { 0%{filter:hue-rotate(0deg)}100%{filter:hue-rotate(360deg)} }
+    @keyframes bob { 0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)} }
+
+
+    .card{
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;
+      padding:18px;
+    }
+    .intro{color:var(--muted);font-size:0.95rem;margin-bottom:12px;}
+    table{width:100%;border-collapse:collapse;color:var(--text);font-size:0.92rem;}
+    thead th{position:sticky;top:0;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);backdrop-filter: blur(4px);z-index:2;padding:10px 8px;text-align:left;font-weight:700;font-size:0.9rem;}
+    tbody td{padding:12px 8px;border-top:1px solid rgba(255,255,255,0.03);vertical-align:middle;}
+    .browser-name{display:flex;align-items:center;gap:10px;font-weight:600;}
+    .btn{
+      display:inline-block;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.06);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));color:var(--text);
+      text-decoration:none;font-weight:600;font-size:0.9rem;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover{transform:translateY(-4px);box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+    .download {background:linear-gradient(90deg, var(--accent), #60a5fa);border:none;color:#042028}
+    .small{font-size:0.85rem;color:var(--muted)}
+
+    @media (max-width:800px){
+      table, thead, tbody, th, td, tr { display:block; }
+      thead {display:none;}
+      tr {margin:0 0 14px 0;background:var(--glass);padding:12px;border-radius:10px;}
+      td { padding:6px 10px; display:flex; justify-content:space-between; align-items:center; }
+      td.label { color:var(--muted); font-weight:700; width:50%; }
+      td.value { width:50%; text-align:right; font-weight:600; }
+    }
+
+
+    footer{
+      position:fixed;left:0;right:0;bottom:0;background:linear-gradient(90deg, rgba(2,6,23,0.9), rgba(5,12,22,0.95));
+      color:var(--muted);padding:12px 20px;display:flex;align-items:center;justify-content:center;gap:8px;
+      border-top:1px solid rgba(255,255,255,0.02);backdrop-filter: blur(6px);
+      font-weight:600;z-index:999;
+    }
+    .pulse {
+      display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(45,212,191,0.06);color:var(--accent);
+      border:1px solid rgba(45,212,191,0.14);
+      animation: pulse 2.6s infinite;
+    }
+    @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(45,212,191,0.12)}70%{box-shadow:0 0 0 10px rgba(45,212,191,0)}100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}}
+
+
+    .meta{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;font-size:0.78rem;color:var(--muted);}
+    .cols {display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    @media (max-width:900px){ .cols{grid-template-columns:1fr;} }
+    a.logo{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(255,255,255,0.02)}
+
+
+    .notify-overlay{
+      position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:10000;padding:20px;
+    }
+    .notify-box{background:var(--card);padding:18px;border-radius:12px;max-width:520px;text-align:left}
+    .notify-box h3{margin-top:0}
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">
+      <div class="badge">EDCELL-TECH</div>
+      <h1>Navegadores <span style="opacity:.95">EDCELLL-TECH</span></h1>
+    </div>
+
+    <div class="card" role="region" aria-labelledby="comparativo-title">
+      <div id="comparativo-title" class="intro">🧩 Comparativo Completo — Segurança, Privacidade e Desempenho (2025)</div>
+
+      <div class="cols" style="margin-bottom:14px">
+        <div class="tag">Inclui: Tor, Brave, Firefox, Edge, Chrome, Safari, DuckDuckGo, Vivaldi, Opera, Epic</div>
+        <div style="text-align:right" class="small">Clique em <strong>Baixar</strong> para ir à página oficial de instalação.</div>
+      </div>
+
+
+      <table aria-describedby="comparativo-title">
+        <thead>
+          <tr>
+            <th>Classificação</th>
+            <th>Navegador</th>
+            <th>Motor</th>
+            <th>Segurança</th>
+            <th>Privacidade</th>
+            <th>Velocidade</th>
+            <th>Código Aberto</th>
+            <th>Melhor Para</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 1 Tor -->
+          <tr>
+            <td>1️⃣</td>
+            <td class="browser-name">Tor Browser</td>
+            <td>Firefox ESR</td>
+            <td>🔒🔒🔒🔒🔒</td>
+            <td>🥇 Anonimato total (rede Tor, bloqueia rastreamento, scripts, fingerprinting)</td>
+            <td>🐢 Lento (por usar rede Tor)</td>
+            <td>✅ Sim</td>
+            <td>Quem busca anonimato completo e sigilo máximo</td>
+            <td><a class="btn download" href="https://www.torproject.org/download/" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 2 Brave -->
+          <tr>
+            <td>2️⃣</td>
+            <td class="browser-name">Brave</td>
+            <td>Chromium</td>
+            <td>🔒🔒🔒🔒</td>
+            <td>🥈 Excelente (bloqueia anúncios e rastreadores por padrão, Tor mode incluso)</td>
+            <td>⚡ Muito rápido</td>
+            <td>✅ Sim</td>
+            <td>Privacidade sem abrir mão da velocidade</td>
+            <td><a class="btn download" href="https://brave.com/download/" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 3 Firefox -->
+          <tr>
+            <td>3️⃣</td>
+            <td class="browser-name">Mozilla Firefox</td>
+            <td>Gecko</td>
+            <td>🔒🔒🔒🔒</td>
+            <td>🥉 Muito boa (modo estrito, containers, proteção fingerprint)</td>
+            <td>⚡ Boa</td>
+            <td>✅ Sim</td>
+            <td>Controle e transparência</td>
+            <td><a class="btn download" href="https://www.firefox.com/" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 4 Edge -->
+          <tr>
+            <td>4️⃣</td>
+            <td class="browser-name">Microsoft Edge</td>
+            <td>Chromium</td>
+            <td>🔒🔒🔒🔒</td>
+            <td>😐 Média (telemetria e integração Microsoft)</td>
+            <td>⚡ Muito rápida (ótima no Windows)</td>
+            <td>❌ Parcial</td>
+            <td>Usuários do Windows, empresas, produtividade</td>
+            <td><a class="btn download" href="https://www.microsoft.com/pt-br/edge/download" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 5 Chrome -->
+          <tr>
+            <td>5️⃣</td>
+            <td class="browser-name">Google Chrome</td>
+            <td>Chromium</td>
+            <td>🔒🔒🔒🔒</td>
+            <td>😐 Média/Baixa (coleta dados extensivamente)</td>
+            <td>⚡🥇 Muito rápida</td>
+            <td>❌ Não</td>
+            <td>Máxima compatibilidade e desempenho</td>
+            <td><a class="btn download" href="https://www.google.com/chrome/" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 6 Safari -->
+          <tr>
+            <td>6️⃣</td>
+            <td class="browser-name">Safari</td>
+            <td>WebKit</td>
+            <td>🔒🔒🔒</td>
+            <td>🙂 Boa (bloqueios de rastreamento nativos)</td>
+            <td>⚡ Boa</td>
+            <td>❌ Parcial</td>
+            <td>Usuários Apple (macOS/iOS)</td>
+            <td><a class="btn download" href="https://www.apple.com/safari/" target="_blank" rel="noopener">Site Apple</a></td>
+          </tr>
+
+          <!-- 7 DuckDuckGo -->
+          <tr>
+            <td>7️⃣</td>
+            <td class="browser-name">DuckDuckGo Browser</td>
+            <td>WebView (Android/iOS)</td>
+            <td>🔒🔒🔒</td>
+            <td>🥈 Excelente (foco total em privacidade)</td>
+            <td>⚡ Boa</td>
+            <td>❌ Não</td>
+            <td>Privacidade simples (Android/iOS)</td>
+            <td><a class="btn download" href="https://duckduckgo.com/app" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 8 Vivaldi -->
+          <tr>
+            <td>8️⃣</td>
+            <td class="browser-name">Vivaldi</td>
+            <td>Chromium</td>
+            <td>🔒🔒🔒</td>
+            <td>🙂 Boa (bloqueios nativos + customização)</td>
+            <td>⚡ Boa</td>
+            <td>✅ Parcial</td>
+            <td>Usuários avançados que gostam de customizar</td>
+            <td><a class="btn download" href="https://vivaldi.com/download/" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 9 Opera -->
+          <tr>
+            <td>9️⃣</td>
+            <td class="browser-name">Opera / Opera GX</td>
+            <td>Chromium</td>
+            <td>🔒🔒</td>
+            <td>😐 Fraca (VPN fraca, anúncios próprios)</td>
+            <td>⚡ Boa</td>
+            <td>❌ Não</td>
+            <td>Visual e recursos gamer</td>
+            <td><a class="btn download" href="https://www.opera.com/download" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+
+          <!-- 10 Epic -->
+          <tr>
+            <td>🔟</td>
+            <td class="browser-name">Epic Privacy Browser</td>
+            <td>Chromium</td>
+            <td>🔒🔒🔒</td>
+            <td>🥉 Boa (VPN proxy embutido)</td>
+            <td>⚡ Média</td>
+            <td>❌ Não</td>
+            <td>Modo privado sempre ativo</td>
+            <td><a class="btn download" href="https://www.epicbrowser.com/" target="_blank" rel="noopener">Baixar</a></td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <div style="margin-top:14px;border-top:1px dashed rgba(255,255,255,0.03);padding-top:12px">
+        <strong>🧠 Resumo Simplificado — Qual escolher</strong>
+        <div class="small" style="margin-top:8px;line-height:1.45">
+          🔒 Anonimato total (sem rastros): <strong>Tor Browser</strong>.<br>
+          ⚖️ Equilíbrio entre segurança + privacidade + velocidade: <strong>Brave</strong>.<br>
+          🧩 Personalização e transparência (open source): <strong>Firefox</strong>.<br>
+          🪟 Integração e segurança no Windows: <strong>Edge</strong>.<br>
+          ⚡ Velocidade e compatibilidade total: <strong>Chrome</strong>.
+        </div>
+      </div>
+
+    </div> <!-- card -->
+  </div> <!-- wrap -->
+
+  <footer role="contentinfo" aria-label="rodape">
+    <span class="pulse">Desenvolvido por EDCELL-TECH</span>
+  </footer>
+
+  <!-- Overlay para instruções caso notificações estejam bloqueadas -->
+  <div class="notify-overlay" id="notifyOverlay" role="dialog" aria-modal="true">
+    <div class="notify-box">
+      <h3>Notificações bloqueadas</h3>
+      <p id="notifyMsg">Parece que as notificações foram bloqueadas no seu navegador. Para receber lembretes diários, habilite as notificações nas configurações do navegador.</p>
+      <div class="actions">
+        <button id="closeOverlay" class="btn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+ 
+      const REPO_URL = 'https://usuario2207ed-hue.github.io/EDCELL-TECH/';
+      const LS_KEY = 'edcell_lastNotify';
+      const LS_LOG = 'edcell_notifyLog'; // array of timestamps
+      const DAY_MS = 24 * 60 * 60 * 1000;
+
+   
+      function now(){ return Date.now(); }
+
+ 
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('/sw.js').then(reg => {
+          console.log('Service Worker registrado:', reg);
+        }).catch(err => console.warn('Erro registrando SW:', err));
+      }
+
+    
+      async function ensureNotificationPermission(){
+        if(!('Notification' in window)){
+          console.warn('Notificações não suportadas neste navegador.');
+          return {granted:false, supported:false};
+        }
+
+        if(Notification.permission === 'granted') return {granted:true, supported:true};
+        if(Notification.permission === 'denied') return {granted:false, supported:true};
+
+     
+        try{
+          const p = await Notification.requestPermission();
+          return {granted: p === 'granted', supported:true};
+        }catch(e){
+          return {granted:false, supported:true};
+        }
+      }
+
+  
+      function showBlockedOverlay(){
+        const overlay = document.getElementById('notifyOverlay');
+        overlay.style.display = 'flex';
+        document.getElementById('closeOverlay').onclick = ()=> overlay.style.display='none';
+      }
+
+    
+      function logNotification(ts){
+        try{
+          const raw = localStorage.getItem(LS_LOG);
+          const arr = raw ? JSON.parse(raw) : [];
+          arr.push(ts);
+          // keep last 50
+          if(arr.length>50) arr.splice(0, arr.length-50);
+          localStorage.setItem(LS_LOG, JSON.stringify(arr));
+        }catch(e){ console.warn('Erro ao logar notificação', e); }
+      }
+
+    
+      async function showEdcellNotification(){
+        const title = 'Visite nosso Repositório';
+        const options = {
+          body: 'Acesse nosso repertório — clique para abrir.',
+          tag: 'edcell-daily',
+          renotify: true,
+          data: { url: REPO_URL },
+          icon: '/favicon.ico',
+          badge: '/favicon.ico'
+        };
+
+     
+        try{
+          if(navigator.serviceWorker && navigator.serviceWorker.getRegistration){
+            const reg = await navigator.serviceWorker.getRegistration();
+            if(reg && reg.showNotification){
+              await reg.showNotification(title, options);
+              logNotification(now());
+              return true;
+            }
+          }
+        }catch(e){ console.warn('Erro showNotification via SW', e); }
+
+      
+        try{
+          const n = new Notification(title, options);
+          n.onclick = (ev) => { ev.preventDefault(); window.open(REPO_URL, '_blank'); n.close(); };
+          logNotification(now());
+          return true;
+        }catch(e){ console.warn('Erro criando Notification direto', e); return false; }
+      }
+
+ 
+      async function maybeNotifyOnOpen(){
+        const permissionStatus = await ensureNotificationPermission();
+        if(!permissionStatus.supported) return; // not supported
+
+        if(permissionStatus.granted){
+          const last = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+          const diff = now() - last;
+          if(isNaN(last) || last === 0 || diff >= DAY_MS){
+           
+            const ok = await showEdcellNotification();
+            if(ok){
+              localStorage.setItem(LS_KEY, String(now()));
+            }
+          }
+        } else if(Notification.permission === 'denied'){
+         
+          showBlockedOverlay();
+        }
+      }
+
+   
+      navigator.serviceWorker && navigator.serviceWorker.addEventListener && navigator.serviceWorker.addEventListener('message', evt=>{
+     
+      });
+
+     
+      let deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        const installBtn = document.createElement('button');
+        installBtn.className = 'btn';
+        installBtn.textContent = 'Adicionar à tela inicial';
+        installBtn.style.position = 'fixed';
+        installBtn.style.right = '18px';
+        installBtn.style.bottom = '70px';
+        installBtn.style.zIndex = 9999;
+        document.body.appendChild(installBtn);
+        installBtn.onclick = async ()=>{
+          installBtn.disabled = true;
+          deferredPrompt.prompt();
+          const choice = await deferredPrompt.userChoice;
+          if(choice && choice.outcome === 'accepted'){
+            localStorage.setItem('edcell_installed_prompt','accepted');
+          }
+          deferredPrompt = null;
+          installBtn.remove();
+        };
+      });
+
+     
+      document.querySelectorAll('.btn').forEach(b=>{
+        b.addEventListener('keydown', e=>{
+          if(e.key === 'Enter' || e.key === ' '){
+            b.click();
+          }
+        });
+      });
+
+     
+      function enhanceMobileLabels(){
+        if(window.innerWidth <= 800){
+          const headers = Array.from(document.querySelectorAll('thead th')).map(h=>h.innerText.trim());
+          document.querySelectorAll('tbody tr').forEach(row=>{
+            const cells = row.querySelectorAll('td');
+            cells.forEach((cell,i)=>{
+              cell.classList.add(i===1 ? 'value' : '');
+              if(!cell.querySelector('.mobile-label')){
+                const label = document.createElement('div');
+                label.className = 'mobile-label';
+                label.style.fontSize='0.8rem';
+                label.style.color='var(--muted)';
+                label.style.fontWeight='700';
+                label.textContent = headers[i] || '';
+                cell.prepend(label);
+              }
+            });
+          });
+        } else {
+          document.querySelectorAll('.mobile-label').forEach(n=>n.remove());
+        }
+      }
+      window.addEventListener('resize', enhanceMobileLabels);
+      window.addEventListener('load', enhanceMobileLabels);
+
+      if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+        document.querySelectorAll('h1,.badge,.pulse').forEach(el=>el.style.animation='none');
+      }
+
+  
+      document.addEventListener('DOMContentLoaded', ()=>{
+        maybeNotifyOnOpen().catch(e=>console.warn(e));
+      });
+
+      window.edcell = {
+        triggerNotification: showEdcellNotification,
+        getLog: ()=> JSON.parse(localStorage.getItem(LS_LOG) || '[]')
+      };
+
+    })();
+  </script>
+</body>
+</html>
